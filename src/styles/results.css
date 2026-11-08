@@ -1,0 +1,534 @@
+/* ==================================================================
+   VOID TYPER — results & records screens
+   ================================================================== */
+
+/* ------------------------------------------------------------------ */
+/* Results screen                                                       */
+/* ------------------------------------------------------------------ */
+
+.vt-results {
+  position: relative;
+  height: 100%;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* NOTE: the scroller owns vertical scrolling. Centering is done with
+   auto margins (not justify-content: center) so that when the content
+   is taller than the viewport everything stays reachable from the top
+   and the page scrolls naturally. */
+.vt-results__scroller {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(14px, 2.6vh, 24px);
+  padding: clamp(18px, 3.5vh, 32px) 16px 46px;
+}
+
+/* never squash stat cards / headings — let the scroller scroll instead */
+.vt-results__scroller > * {
+  flex-shrink: 0;
+}
+
+/* safe vertical centering: auto margins collapse to 0 when overflowing */
+.vt-results__header {
+  margin-top: auto;
+  text-align: center;
+  animation: vt-fade-in 0.7s ease both;
+}
+
+.vt-results__actions {
+  margin-bottom: auto;
+}
+
+.vt-results__title {
+  font-family: var(--vt-font-display);
+  font-weight: 900;
+  font-size: clamp(30px, 6.4vw, 62px);
+  line-height: 1.08;
+  letter-spacing: 0.14em;
+  color: var(--vt-danger);
+  text-shadow: 0 0 16px rgba(244, 63, 94, 0.65), 0 0 60px rgba(244, 63, 94, 0.35);
+  animation: vt-title-in 1s cubic-bezier(0.2, 0.8, 0.3, 1) both;
+}
+
+.vt-results__subtitle {
+  margin-top: 10px;
+  font-size: 12.5px;
+  letter-spacing: 0.3em;
+  color: var(--vt-dim);
+}
+
+.vt-results__best-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 14px;
+  padding: 7px 18px;
+  font-family: var(--vt-font-display);
+  font-weight: 800;
+  font-size: 12.5px;
+  letter-spacing: 0.26em;
+  color: #fde68a;
+  border: 1px solid rgba(251, 191, 36, 0.65);
+  background: rgba(69, 42, 6, 0.4);
+  box-shadow: 0 0 20px rgba(251, 191, 36, 0.3);
+  animation: vt-pulse 1.8s ease-in-out infinite;
+}
+
+.vt-results__score {
+  text-align: center;
+  animation: vt-fade-in 0.8s 0.25s ease both;
+}
+
+.vt-results__score-label {
+  font-size: 11px;
+  letter-spacing: 0.4em;
+  color: var(--vt-dim);
+}
+
+.vt-results__score-value {
+  font-family: var(--vt-font-display);
+  font-weight: 900;
+  font-size: clamp(46px, 9vw, 76px);
+  color: var(--vt-cyan-bright);
+  text-shadow: 0 0 16px rgba(34, 211, 238, 0.7), 0 0 70px rgba(34, 211, 238, 0.4);
+  font-variant-numeric: tabular-nums;
+  line-height: 1.15;
+}
+
+.vt-results__grid {
+  width: min(620px, 100%);
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  animation: vt-fade-in 0.8s 0.4s ease both;
+}
+
+.vt-result-cell {
+  padding: 13px 16px;
+  background: rgba(10, 16, 32, 0.66);
+  border: 1px solid var(--vt-line);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.vt-result-cell__label {
+  font-size: 9.5px;
+  letter-spacing: 0.22em;
+  color: var(--vt-dim);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.vt-result-cell__value {
+  font-size: 21px;
+  font-weight: 700;
+  color: var(--vt-text);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.vt-result-cell__value--cyan { color: var(--vt-cyan-bright); }
+.vt-result-cell__value--warn { color: var(--vt-warn); }
+.vt-result-cell__value--danger { color: var(--vt-danger); }
+.vt-result-cell__value--gold { color: #fde68a; }
+
+.vt-result-cell--wide {
+  grid-column: 1 / -1;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.vt-results__actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 220px));
+  gap: 11px;
+  justify-content: center;
+  width: min(620px, 100%);
+  animation: vt-fade-in 0.8s 0.55s ease both;
+}
+
+.vt-results__actions .vt-btn {
+  width: 100%;
+}
+
+.vt-toast {
+  position: absolute;
+  bottom: 18px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 50;
+  padding: 11px 22px;
+  font-size: 12px;
+  letter-spacing: 0.18em;
+  color: var(--vt-cyan-bright);
+  background: rgba(10, 16, 32, 0.94);
+  border: 1px solid var(--vt-line-strong);
+  box-shadow: var(--vt-glow-cyan);
+  animation: vt-toast-in 2.6s ease both;
+  max-width: 88%;
+  text-align: center;
+}
+
+@keyframes vt-toast-in {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, 12px);
+  }
+  8%, 84% {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, 8px);
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* Records screen                                                       */
+/* ------------------------------------------------------------------ */
+
+.vt-records {
+  position: relative;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.vt-records__header {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px 14px;
+  flex-wrap: wrap;
+  padding: 18px 22px 14px;
+  border-bottom: 1px solid var(--vt-line);
+  background: rgba(10, 16, 32, 0.9);
+}
+
+.vt-records__headinfo {
+  min-width: 0;
+  flex: 1 1 220px;
+}
+
+.vt-records__title {
+  font-family: var(--vt-font-display);
+  font-weight: 900;
+  font-size: clamp(17px, 3.2vw, 28px);
+  letter-spacing: 0.2em;
+  color: var(--vt-cyan-bright);
+  text-shadow: var(--vt-glow-cyan);
+  overflow-wrap: anywhere;
+}
+
+.vt-records__body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 18px 16px 30px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* summary cards */
+.vt-records__summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(128px, 1fr));
+  gap: 9px;
+}
+
+.vt-summary-card {
+  padding: 12px 14px;
+  text-align: center;
+  background: rgba(10, 16, 32, 0.66);
+  border: 1px solid var(--vt-line);
+}
+.vt-summary-card__label {
+  font-size: 9px;
+  letter-spacing: 0.2em;
+  color: var(--vt-dim);
+}
+.vt-summary-card__value {
+  margin-top: 5px;
+  font-size: 19px;
+  font-weight: 700;
+  color: var(--vt-cyan-bright);
+  font-variant-numeric: tabular-nums;
+}
+.vt-summary-card__value--gold { color: #fde68a; }
+.vt-summary-card__value--purple { color: var(--vt-purple); }
+
+/* sorting */
+.vt-records__sort {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.vt-sort-btn {
+  padding: 8px 14px;
+  font-size: 10.5px;
+  letter-spacing: 0.18em;
+  color: var(--vt-dim);
+  border: 1px solid var(--vt-line);
+  background: rgba(10, 16, 32, 0.5);
+  transition: all 0.16s;
+}
+.vt-sort-btn:hover {
+  color: var(--vt-text);
+}
+.vt-sort-btn--active {
+  color: var(--vt-cyan-bright);
+  border-color: var(--vt-cyan);
+  background: rgba(34, 211, 238, 0.1);
+  box-shadow: inset 0 0 14px rgba(34, 211, 238, 0.14);
+}
+
+/* record rows — explicit grid areas so no item ever lands in the wrong
+   track (the old template had 8 tracks for 9 items: the date was crammed
+   into the delete-button column and overflowed the card). */
+.vt-record-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.vt-record {
+  display: grid;
+  grid-template-columns:
+    44px
+    minmax(110px, 1.35fr)
+    minmax(0, 0.95fr)
+    minmax(0, 0.85fr)
+    minmax(0, 0.85fr)
+    minmax(0, 0.62fr)
+    minmax(0, 0.62fr)
+    minmax(104px, 1.05fr)
+    40px;
+  grid-template-areas: "rank name score wpm acc level time date del";
+  gap: 8px;
+  align-items: center;
+  padding: 11px 12px;
+  background: rgba(10, 16, 32, 0.6);
+  border: 1px solid var(--vt-line);
+  border-left: 2px solid var(--vt-cyan);
+  animation: vt-fade-in 0.35s ease both;
+}
+
+.vt-record--best {
+  border-left-color: var(--vt-warn);
+  background: rgba(69, 42, 6, 0.16);
+}
+
+.vt-record__rank {
+  grid-area: rank;
+  font-family: var(--vt-font-display);
+  font-weight: 800;
+  font-size: 13px;
+  color: var(--vt-dim);
+}
+.vt-record--best .vt-record__rank {
+  color: var(--vt-warn);
+}
+
+.vt-record__name {
+  grid-area: name;
+  min-width: 0;
+  font-size: 13.5px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--vt-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.vt-record__cell {
+  font-size: 12.5px;
+  color: var(--vt-cyan-bright);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-align: right;
+  min-width: 0;
+}
+.vt-record__cell--score { grid-area: score; }
+.vt-record__cell--wpm { grid-area: wpm; }
+.vt-record__cell--acc { grid-area: acc; }
+.vt-record__cell--level { grid-area: level; }
+.vt-record__cell--time { grid-area: time; }
+.vt-record__cell--dim {
+  color: var(--vt-dim);
+}
+
+.vt-record__date {
+  grid-area: date;
+  min-width: 0;
+  font-size: 10px;
+  color: var(--vt-dim);
+  letter-spacing: 0.06em;
+  text-align: right;
+  line-height: 1.5;
+  /* wrap instead of escaping the card on narrow tracks */
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: normal;
+}
+
+.vt-record__delete {
+  grid-area: del;
+  width: 34px;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--vt-dim);
+  border: 1px solid transparent;
+  transition: all 0.15s;
+}
+.vt-record__delete:hover {
+  color: var(--vt-danger);
+  border-color: rgba(244, 63, 94, 0.5);
+  background: rgba(244, 63, 94, 0.1);
+}
+
+.vt-records__empty {
+  padding: 54px 20px;
+  text-align: center;
+  color: var(--vt-dim);
+}
+.vt-records__empty-icon {
+  font-size: 40px;
+  margin-bottom: 14px;
+  opacity: 0.5;
+}
+.vt-records__empty-title {
+  font-family: var(--vt-font-display);
+  font-size: 15px;
+  letter-spacing: 0.24em;
+  color: var(--vt-text);
+  margin-bottom: 8px;
+}
+.vt-records__empty p {
+  font-size: 12px;
+  letter-spacing: 0.1em;
+  line-height: 1.7;
+}
+
+.vt-records__footer {
+  flex: none;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 18px max(14px, env(safe-area-inset-bottom));
+  border-top: 1px solid var(--vt-line);
+  background: rgba(10, 16, 32, 0.9);
+}
+
+.vt-records__note {
+  font-size: 9.5px;
+  letter-spacing: 0.16em;
+  color: rgba(124, 138, 165, 0.7);
+  max-width: 46%;
+  line-height: 1.5;
+}
+
+/* ------------------------------------------------------------------ */
+/* Tutorial (How to Play)                                               */
+/* ------------------------------------------------------------------ */
+
+.vt-tutorial__step {
+  display: flex;
+  gap: 14px;
+  padding: 12px 0;
+  border-bottom: 1px dashed rgba(124, 138, 165, 0.18);
+}
+.vt-tutorial__step:last-child {
+  border-bottom: none;
+}
+
+.vt-tutorial__num {
+  flex: none;
+  width: 34px;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--vt-font-display);
+  font-weight: 800;
+  font-size: 14px;
+  color: var(--vt-cyan-bright);
+  border: 1px solid var(--vt-line-strong);
+  background: rgba(34, 211, 238, 0.08);
+}
+
+.vt-tutorial__text {
+  font-size: 13px;
+  line-height: 1.65;
+  color: var(--vt-text);
+  letter-spacing: 0.04em;
+}
+.vt-tutorial__text strong {
+  color: var(--vt-cyan-bright);
+  font-weight: 700;
+}
+.vt-tutorial__text em {
+  color: var(--vt-danger);
+  font-style: normal;
+}
+
+.vt-tutorial__section-title {
+  margin: 20px 0 6px;
+  font-family: var(--vt-font-display);
+  font-weight: 800;
+  font-size: 13px;
+  letter-spacing: 0.3em;
+  color: var(--vt-purple);
+}
+.vt-tutorial__section-title:first-child {
+  margin-top: 0;
+}
+
+.vt-tutorial__keys {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.vt-tutorial__key {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 12px;
+  background: rgba(4, 8, 18, 0.6);
+  border: 1px solid var(--vt-line);
+  font-size: 11px;
+  color: var(--vt-dim);
+  letter-spacing: 0.08em;
+}
+
+.vt-tutorial__key kbd {
+  font-family: var(--vt-font-mono);
+  font-size: 12px;
+  color: var(--vt-cyan-bright);
+  border: 1px solid var(--vt-line-strong);
+  background: rgba(34, 211, 238, 0.08);
+  padding: 3px 9px;
+  flex: none;
+}
